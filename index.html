@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chantier en cours — Kreolyse</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.76/build/spline-viewer.js"></script>
+</head>
+<body>
+
+    <!-- Fond grille -->
+    <div id="bg-grid"></div>
+
+    <!-- Particules sparks -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Rubans de chantier -->
+    <div class="caution-tape top"></div>
+    <div class="caution-tape bottom"></div>
+
+    <!-- Bouton retour -->
+    <a id="back-btn" href="../Fichiers site Kreolyse/index.html"
+       onclick="history.length > 1 ? (history.back(), event.preventDefault()) : null"
+       title="Retourner au site">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span>Retour</span>
+    </a>
+
+    <!-- Toasts messages (clic sur app card) -->
+    <div id="toast-container"></div>
+
+    <!-- Fissure écran -->
+    <canvas id="crack-canvas"></canvas>
+
+    <!-- Chute d'objets -->
+    <div id="drop-container"></div>
+
+    <!-- Flash blanc -->
+    <div id="screen-flash"></div>
+
+    <!-- ============================================================
+         LAYOUT 3 COLONNES
+         ============================================================ -->
+    <div id="layout">
+
+        <!-- ── GAUCHE : Applications ── -->
+        <aside id="apps-panel">
+
+            <div class="apps-header">
+                <span class="apps-header-tag">En cours d'élaboration :</span>
+            </div>
+
+            <div class="apps-required-lines">
+                <p>KREOLYSE - Le traducteur de phrases Francais - Créole Guyanais</p>
+                <p>MYCOFAD - Un coffre numérique adminsitratif personnalisé</p>
+                <p>TRIALLAM - Le trieur intelligent de documents</p>
+            </div>
+
+            <div class="apps-list">
+
+                <div class="app-card" tabindex="0"
+                     data-name="KREOLYSE"
+                     data-msg="Ce traducteur ne traduit pas encore les clics. Un peu de patience — le créole se mérite.">
+                    <div class="app-card-body">
+                        <div class="app-name">KREOLYSE</div>
+                        <div class="app-desc">Le traducteur de phrases Francais - Créole Guyanais</div>
+                        <div class="app-prog-outer">
+                            <div class="app-prog-inner" style="width:42%"></div>
+                        </div>
+                    </div>
+                    <div class="app-badge">🚧<br>42%</div>
+                </div>
+
+                <div class="app-card" tabindex="0"
+                     data-name="MYCOFAD"
+                     data-msg="Ton coffre est bien sécurisé. Par contre on n'a pas encore fabriqué la clé. Bientôt !">
+                    <div class="app-card-body">
+                        <div class="app-name">MYCOFAD</div>
+                        <div class="app-desc">Un coffre numérique adminsitratif personnalisé</div>
+                        <div class="app-prog-outer">
+                            <div class="app-prog-inner" style="width:17%"></div>
+                        </div>
+                    </div>
+                    <div class="app-badge">🚧<br>17%</div>
+                </div>
+
+                <div class="app-card" tabindex="0"
+                     data-name="TRIALLAM"
+                     data-msg="TRIALLAM a analysé ton clic et l'a classé dans le dossier « Trop tôt ». Réessaie plus tard.">
+                    <div class="app-card-body">
+                        <div class="app-name">TRIALLAM</div>
+                        <div class="app-desc">Le trieur intelligent de documents</div>
+                        <div class="app-prog-outer">
+                            <div class="app-prog-inner" style="width:61%"></div>
+                        </div>
+                    </div>
+                    <div class="app-badge">🚧<br>61%</div>
+                </div>
+
+            </div><!-- /apps-list -->
+
+            <div class="apps-motto">
+                <div class="motto-label">Le mot d'ordre pour la construction de mes projets d'applications :</div>
+                <div class="motto-words">
+                    <span>Simplicité, Efficacité, Accessibilité</span>
+                </div>
+            </div>
+
+        </aside><!-- /apps-panel -->
+
+        <!-- ── CENTRE : Contenu principal ── -->
+        <main id="main-content">
+
+            <div class="sign parallax" data-speed="1.5" id="sign">
+                <div class="sign-top">
+                    <span class="sign-icon">🚧</span>
+                    <span class="sign-title">Travaux en cours</span>
+                    <span class="sign-icon">🚧</span>
+                </div>
+                <div class="sign-sub">(mais on ne sait pas où sont les ouvriers)</div>
+            </div>
+
+            <h1 id="main-h1" class="parallax" data-speed="1">
+                On construit quelque chose ici…<br>enfin, normalement.
+            </h1>
+
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span class="mono">Progression du chantier</span>
+                    <span class="progress-percent mono" id="pct-label">73%</span>
+                </div>
+                <div class="progress-bar-outer">
+                    <div class="progress-bar-inner" id="progress-bar"></div>
+                </div>
+                <div class="progress-sub mono">Connexion aux ouvriers... <span class="blink">|</span></div>
+            </div>
+
+            <button id="danger-btn">
+                <span id="btn-text">⚠️&nbsp; Ne pas cliquer</span>
+            </button>
+
+        </main><!-- /main-content -->
+
+        <!-- ── DROITE : Spline 3D ── -->
+        <div id="spline-panel">
+            <spline-viewer
+                url="https://prod.spline.design/rCJ3KOwvzCq4CPO0/scene.splinecode"
+                loading-anim>
+            </spline-viewer>
+            <!-- Dégradé gauche pour fondre dans le centre -->
+            <div id="spline-fade"></div>
+        </div>
+
+    </div><!-- /layout -->
+
+    <script src="script.js"></script>
+</body>
+</html>

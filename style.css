@@ -1,0 +1,650 @@
+/* ===================================================
+   UNDER CONSTRUCTION — Kreolyse
+   Layout 3 colonnes : Apps | Contenu | Spline 3D
+   =================================================== */
+
+:root {
+    --orange:  #ff6b00;
+    --yellow:  #ffd60a;
+    --blue:    #00d4ff;
+    --red:     #e74c3c;
+    --dark:    #07070f;
+    --glass:   rgba(255,255,255,0.04);
+    --glass-b: rgba(255,255,255,0.09);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+}
+
+/* ===================================================
+   FOND GRILLE POINTILLÉE
+   =================================================== */
+
+#bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+}
+
+/* Lueurs d'ambiance */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(80px);
+}
+body::before {
+    width: 40vw; height: 50vh;
+    left: -5vw; top: 20%;
+    background: rgba(255,107,0,0.05);
+}
+body::after {
+    width: 35vw; height: 45vh;
+    right: -5vw; top: 25%;
+    background: rgba(0,212,255,0.04);
+}
+
+/* ===================================================
+   CANVAS PARTICULES
+   =================================================== */
+
+#particles-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ===================================================
+   RUBANS DE CHANTIER
+   =================================================== */
+
+.caution-tape {
+    position: fixed;
+    left: 0; right: 0;
+    height: 34px;
+    z-index: 50;
+    background: repeating-linear-gradient(
+        -55deg,
+        var(--yellow)  0px,  var(--yellow)  17px,
+        #0e0e0e       17px, #0e0e0e        34px
+    );
+    opacity: 0.75;
+}
+.caution-tape.top    { top: 0; }
+.caution-tape.bottom { bottom: 0; }
+
+/* ===================================================
+   BOUTON RETOUR
+   =================================================== */
+
+#back-btn {
+    position: fixed;
+    top: 44px;
+    left: 16px;
+    z-index: 60;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    letter-spacing: 0.4px;
+    padding: 8px 15px 8px 11px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+}
+#back-btn svg { flex-shrink: 0; transition: transform 0.2s; }
+#back-btn:hover {
+    color: #fff;
+    background: rgba(255,107,0,0.14);
+    border-color: rgba(255,107,0,0.4);
+    transform: translateX(-2px);
+}
+#back-btn:hover svg { transform: translateX(-3px); }
+
+/* ===================================================
+   TOASTS
+   =================================================== */
+
+#toast-container {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+    width: max-content;
+    max-width: 360px;
+}
+
+.toast {
+    background: rgba(15,15,28,0.96);
+    border: 1px solid rgba(255,107,0,0.45);
+    border-radius: 14px;
+    padding: 14px 20px;
+    text-align: center;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 0 30px rgba(255,107,0,0.2), 0 8px 24px rgba(0,0,0,0.5);
+    animation: toast-in 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.toast.out { animation: toast-out 0.28s ease-in forwards; }
+.toast-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--orange);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.toast-msg {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.85);
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(-14px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.9); }
+}
+
+/* ===================================================
+   CRACK + FLASH + DROPS
+   =================================================== */
+
+#crack-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+#crack-canvas.visible { opacity: 1; }
+
+#drop-container {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+#screen-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #fff;
+    pointer-events: none;
+    opacity: 0;
+}
+#screen-flash.flash-anim { animation: flash 0.35s ease-out forwards; }
+@keyframes flash {
+    0%   { opacity: 0.85; }
+    100% { opacity: 0; }
+}
+
+/* ===================================================
+   LAYOUT 3 COLONNES
+   =================================================== */
+
+#layout {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 36px;
+    width: 100%;
+    height: 100vh;
+    padding: 50px 24px 50px;   /* espace rubans caution */
+}
+
+/* ===================================================
+   PANNEAU GAUCHE — APPLICATIONS
+   =================================================== */
+
+#apps-panel {
+    width: 278px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.apps-header { margin-bottom: 2px; }
+
+.apps-header-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: rgba(255,107,0,0.1);
+    border: 1px solid rgba(255,107,0,0.3);
+    padding: 5px 13px;
+    border-radius: 99px;
+}
+
+.apps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.apps-required-lines {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: rgba(255,255,255,0.58);
+}
+.apps-required-lines p + p { margin-top: 5px; }
+
+/* Carte application */
+.app-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border-radius: 13px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 3px solid var(--orange);
+    cursor: not-allowed;
+    user-select: none;
+    transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+    outline: none;
+}
+.app-card:hover {
+    background: rgba(255,107,0,0.07);
+    border-color: rgba(255,107,0,0.22);
+    border-left-color: var(--orange);
+    box-shadow: 0 0 20px rgba(255,107,0,0.1);
+    transform: translateX(4px);
+}
+.app-card:active { transform: translateX(2px) scale(0.98); }
+
+/* Animation "blocked" au clic */
+.app-card.blocked {
+    animation: card-blocked 0.38s ease;
+}
+@keyframes card-blocked {
+    0%,100% { transform: translateX(4px); }
+    25%      { transform: translateX(8px) rotate(1deg); }
+    75%      { transform: translateX(0)   rotate(-1deg); }
+}
+
+.app-card-body { flex: 1; min-width: 0; }
+
+.app-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: 1.2px;
+    margin-bottom: 4px;
+}
+.app-desc {
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.35;
+    margin-bottom: 9px;
+}
+.app-prog-outer {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.app-prog-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--orange), var(--yellow));
+    border-radius: 99px;
+}
+
+.app-badge {
+    flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* Devise */
+.apps-motto {
+    padding: 13px 15px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: 2px solid rgba(255,107,0,0.38);
+}
+.motto-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.67rem;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+    letter-spacing: 0.4px;
+}
+.motto-words {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.82);
+}
+.dot { color: var(--orange); font-weight: 400; }
+
+/* ===================================================
+   CENTRE — CONTENU PRINCIPAL
+   =================================================== */
+
+#main-content {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    text-align: center;
+}
+
+/* ---- Panneau "Travaux en cours" ---- */
+.sign {
+    padding: 22px 36px;
+    border-radius: 18px;
+    background: linear-gradient(135deg,
+        rgba(255,107,0,0.18) 0%,
+        rgba(255,107,0,0.06) 100%);
+    border: 1.5px solid rgba(255,107,0,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 0 28px rgba(255,107,0,0.22),
+        0 0 70px rgba(255,107,0,0.08),
+        inset 0 0 20px rgba(255,107,0,0.06);
+    transform-origin: top center;
+    animation: swing 5s ease-in-out infinite alternate;
+    width: 100%;
+}
+
+.sign-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.sign-icon  { font-size: 1.7rem; }
+.sign-title { font-size: 2rem; letter-spacing: 0.3px; }
+
+.sign-sub {
+    font-size: 1.02rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+}
+
+/* ---- H1 ---- */
+#main-h1 {
+    font-size: 1.85rem;
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 40px rgba(0,212,255,0.15), 0 4px 14px rgba(0,0,0,0.5);
+}
+
+#main-h1.glitch { animation: glitch-shake 0.38s steps(4) forwards; }
+@keyframes glitch-shake {
+    0%   { transform: translate(0);       color: #fff; }
+    25%  { transform: translate(-4px,1px); color: var(--blue); }
+    50%  { transform: translate(4px,-1px); color: var(--orange); }
+    75%  { transform: translate(-2px,2px); color: #fff; }
+    100% { transform: translate(0);       color: #fff; }
+}
+
+/* ---- Barre de progression ---- */
+.progress-container {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: var(--glass);
+    border: 1px solid var(--glass-b);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    opacity: 0.6;
+    margin-bottom: 9px;
+}
+.mono { font-family: 'Space Mono', monospace; }
+
+.progress-bar-outer {
+    height: 7px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.progress-bar-inner {
+    height: 100%;
+    width: 73%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--orange), var(--yellow));
+    position: relative;
+    transition: width 1.8s ease;
+}
+.progress-bar-inner::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 50px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    animation: shimmer 2.4s infinite;
+}
+@keyframes shimmer {
+    from { transform: translateX(-80px); }
+    to   { transform: translateX(340px); }
+}
+.progress-sub {
+    font-size: 0.68rem;
+    opacity: 0.42;
+    margin-top: 8px;
+    text-align: left;
+}
+.blink { animation: blink 0.9s step-start infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---- Bouton danger ---- */
+#danger-btn {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 14px 34px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    box-shadow:
+        0 6px 0 #8e1e14,
+        0 10px 24px rgba(231,76,60,0.42),
+        0 0   40px rgba(231,76,60,0.16);
+    transition: transform 0.12s, box-shadow 0.12s;
+}
+#danger-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 65%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+#danger-btn:hover::before { opacity: 1; }
+#danger-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 #8e1e14, 0 14px 32px rgba(231,76,60,0.52), 0 0 60px rgba(231,76,60,0.25);
+}
+#danger-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #8e1e14; }
+
+#danger-btn.broken {
+    background: linear-gradient(135deg, #555, #333);
+    box-shadow: 0 4px 0 #1a1a1a, 0 8px 14px rgba(0,0,0,0.4);
+    cursor: default;
+    animation: btn-broken 0.55s steps(3) forwards;
+}
+@keyframes btn-broken {
+    0%   { transform: translate(-6px, 2px); }
+    33%  { transform: translate( 6px,-2px); }
+    66%  { transform: translate(-3px, 3px); }
+    100% { transform: translate(0); }
+}
+
+/* ===================================================
+   DROITE — SPLINE 3D
+   =================================================== */
+
+#spline-panel {
+    width: 360px;
+    height: 460px;
+    flex-shrink: 0;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(0,0,0,0.3);
+    box-shadow:
+        0 0 50px rgba(0,0,0,0.6),
+        0 0 80px rgba(0,212,255,0.04),
+        inset 0 0 40px rgba(0,0,0,0.3);
+}
+
+#spline-panel spline-viewer {
+    width: 100%;
+    height: 100%;
+}
+#spline-panel spline-viewer::part(logo) { display: none !important; }
+
+/* Fallback: masque visuel du watermark "Built with Spline" */
+#spline-panel::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 170px;
+    height: 52px;
+    border-radius: 10px;
+    background:
+        linear-gradient(135deg, rgba(7,7,15,0.97), rgba(7,7,15,0.92));
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 10px 18px rgba(0,0,0,0.45);
+    /* Important: bloque aussi le clic sur le lien du watermark */
+    pointer-events: auto;
+    z-index: 12;
+}
+
+/* Fondu gauche pour fondre dans le contenu central */
+#spline-fade {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 90px;
+    background: linear-gradient(90deg, var(--dark), transparent);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ===================================================
+   ÉLÉMENTS QUI TOMBENT
+   =================================================== */
+
+.drop-item {
+    position: absolute;
+    top: -60px;
+    font-size: 2.2rem;
+    pointer-events: none;
+    animation: drop-fall linear forwards;
+}
+@keyframes drop-fall {
+    to { transform: translateY(115vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===================================================
+   TREMBLEMENT
+   =================================================== */
+
+.shake-screen { animation: shake 0.75s cubic-bezier(0.36,0.07,0.19,0.97) both; }
+@keyframes shake {
+    0%,100% { transform: translate(0, 0); }
+    10%  { transform: translate(-10px, -6px) rotate(-1.5deg); }
+    20%  { transform: translate( 10px,  6px) rotate( 1.5deg); }
+    30%  { transform: translate(-12px,  4px) rotate(-2deg); }
+    40%  { transform: translate( 12px, -4px) rotate( 2deg); }
+    50%  { transform: translate( -7px,  7px) rotate(-1deg); }
+    60%  { transform: translate(  7px, -7px) rotate( 1deg); }
+    70%  { transform: translate( -9px,  2px); }
+    80%  { transform: translate(  9px, -2px); }
+    90%  { transform: translate( -4px,  4px); }
+}
+
+/* ===================================================
+   KEYFRAMES GLOBAUX
+   =================================================== */
+
+@keyframes swing {
+    0%   { transform: rotate( 2deg); }
+    100% { transform: rotate(-2deg); }
+}
+
+/* ===================================================
+   RESPONSIVE (≤ 960px : masque colonnes latérales)
+   =================================================== */
+
+@media (max-width: 960px) {
+    #apps-panel, #spline-panel { display: none; }
+    #main-content { max-width: 90vw; }
+    .sign-title   { font-size: 1.55rem; }
+    .sign-sub     { font-size: 0.92rem; }
+    #main-h1      { font-size: 1.45rem; }
+}
