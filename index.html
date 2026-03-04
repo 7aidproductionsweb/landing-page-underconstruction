@@ -7,9 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.0.76/build/spline-viewer.js"></script>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@latest/build/spline-viewer.js"></script>
 </head>
 <body>
+
+    <!-- Fond images de chantier -->
+    <div id="bg-good"></div>
+    <div id="bg-chaos"></div>
 
     <!-- Fond grille -->
     <div id="bg-grid"></div>
@@ -21,16 +25,15 @@
     <div class="caution-tape top"></div>
     <div class="caution-tape bottom"></div>
 
-    <!-- Bouton retour -->
-    <a id="back-btn" href="../Fichiers site Kreolyse/index.html"
-       onclick="history.length > 1 ? (history.back(), event.preventDefault()) : null"
-       title="Retourner au site">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
+    <!-- Bouton fermer -->
+    <button id="close-btn" onclick="window.close()" title="Fermer cette page">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-        <span>Retour</span>
-    </a>
+        <span>Fermer</span>
+    </button>
 
     <!-- Toasts messages (clic sur app card) -->
     <div id="toast-container"></div>
@@ -53,13 +56,7 @@
         <aside id="apps-panel">
 
             <div class="apps-header">
-                <span class="apps-header-tag">En cours d'élaboration :</span>
-            </div>
-
-            <div class="apps-required-lines">
-                <p>KREOLYSE - Le traducteur de phrases Francais - Créole Guyanais</p>
-                <p>MYCOFAD - Un coffre numérique adminsitratif personnalisé</p>
-                <p>TRIALLAM - Le trieur intelligent de documents</p>
+                <span class="apps-header-tag">Applications en cours d'élaboration :</span>
             </div>
 
             <div class="apps-list">
@@ -120,14 +117,14 @@
             <div class="sign parallax" data-speed="1.5" id="sign">
                 <div class="sign-top">
                     <span class="sign-icon">🚧</span>
-                    <span class="sign-title">Travaux en cours</span>
+                    <span class="sign-title">Cette Page est en Construction</span>
                     <span class="sign-icon">🚧</span>
                 </div>
                 <div class="sign-sub">(mais on ne sait pas où sont les ouvriers)</div>
             </div>
 
             <h1 id="main-h1" class="parallax" data-speed="1">
-                On construit quelque chose ici…<br>enfin, normalement.
+                On construit une page ici…<br>enfin, normalement.
             </h1>
 
             <div class="progress-container">
@@ -142,15 +139,16 @@
             </div>
 
             <button id="danger-btn">
-                <span id="btn-text">⚠️&nbsp; Ne pas cliquer</span>
+                <span id="btn-text">⚠️&nbsp; Ne pas cliquer !</span>
             </button>
+            <p id="danger-sub">Il ne se passera probablement rien… probablement. 👀</p>
 
         </main><!-- /main-content -->
 
         <!-- ── DROITE : Spline 3D ── -->
         <div id="spline-panel">
             <spline-viewer
-                url="https://prod.spline.design/rCJ3KOwvzCq4CPO0/scene.splinecode"
+                url="https://prod.spline.design/fIn169DV6m9FzazG/scene.splinecode"
                 loading-anim>
             </spline-viewer>
             <!-- Dégradé gauche pour fondre dans le centre -->

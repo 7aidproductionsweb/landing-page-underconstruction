@@ -89,9 +89,27 @@ setInterval(() => {
 }, 1800);
 
 
-// ---- 4. GLITCH PÉRIODIQUE SUR LE TITRE ----
+// ---- 4. GLITCH PÉRIODIQUE SUR LE TITRE + TYPEWRITER ----
 
 const h1 = document.getElementById('main-h1');
+
+// Typewriter au chargement
+(function typeH1() {
+    const line1 = 'On construit une page ici\u2026';
+    const line2 = 'enfin, normalement.';
+    h1.innerHTML = '';
+    let i = 0;
+    function step() {
+        if (i <= line1.length) {
+            h1.innerHTML = line1.slice(0, i);
+        } else {
+            h1.innerHTML = line1 + '<br>' + line2.slice(0, i - line1.length);
+        }
+        i++;
+        if (i <= line1.length + line2.length) setTimeout(step, 42);
+    }
+    step();
+})();
 
 function scheduleGlitch() {
     const delay = Math.random() * 6000 + 5000;
@@ -197,9 +215,86 @@ const flash         = document.getElementById('screen-flash');
 const sign          = document.getElementById('sign');
 let   isBroken      = false;
 
+// Spline runtime API — détection multi-méthode
+let splineApp = null;
+const splineViewer = document.querySelector('#spline-panel spline-viewer');
+
+function detectSplineApp() {
+    if (!splineViewer) return null;
+    return splineViewer.spline
+        || splineViewer._spline
+        || splineViewer.application
+        || splineViewer._application
+        || null;
+}
+
+if (splineViewer) {
+    const immediate = detectSplineApp();
+    if (immediate) splineApp = immediate;
+
+    splineViewer.addEventListener('load', (e) => {
+        splineApp = e.detail?.spline ?? e.detail ?? detectSplineApp() ?? null;
+    });
+
+    const splinePoll = setInterval(() => {
+        const found = detectSplineApp();
+        if (found) { splineApp = found; clearInterval(splinePoll); }
+    }, 500);
+    setTimeout(() => clearInterval(splinePoll), 30000);
+
+    // Force resize (corrige WebGL "Attachment has zero size")
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 1200);
+}
+
+// ---- 6b. SON AU CLIC ----
+
+const dangerSound = new Audio('public/sound/bruitage%20chaos%20chantier.mp3');
+dangerSound.preload = 'auto';
+dangerSound.volume  = 0.35;
+
+// Hover : texte change au survol (avant le clic seulement)
+btn.addEventListener('mouseenter', () => {
+    if (!isBroken) btnText.innerHTML = 'Cliquer quand même&nbsp;!';
+});
+btn.addEventListener('mouseleave', () => {
+    if (!isBroken) btnText.innerHTML = '⚠️&nbsp; Ne pas cliquer&nbsp;!';
+});
+
 btn.addEventListener('click', () => {
     if (isBroken) return;
     isBroken = true;
+
+    // Switch fond : chantier-good → chantier-chaos (coïncide avec le flash)
+    document.body.classList.add('state-broken');
+
+    // Son bruitage chantier
+    dangerSound.currentTime = 0;
+    dangerSound.play().catch(() => {});
+
+    // Rotation 180° du personnage 3D (axe Y, depuis position courante)
+    if (splineApp) {
+        const allObjects = splineApp.getAllObjects() || [];
+        const meshObjects = allObjects.filter(obj => {
+            const n = (obj.name || '').toLowerCase();
+            return !n.includes('camera') && !n.includes('light') && !n.includes('lamp')
+                && !n.includes('directional') && !n.includes('ambient');
+        });
+        if (meshObjects.length > 0) {
+            const target = meshObjects[0];
+            const startY = target.rotation?.y ?? 0;
+            const endY   = startY + Math.PI;
+            const dur    = 1100;
+            const t0     = performance.now();
+            const spinStep = () => {
+                const p    = Math.min((performance.now() - t0) / dur, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                if (target.rotation) target.rotation.y = startY + (endY - startY) * ease;
+                if (p < 1) requestAnimationFrame(spinStep);
+            };
+            requestAnimationFrame(spinStep);
+        }
+    }
 
     // a) Flash blanc
     flash.classList.add('flash-anim');
@@ -217,10 +312,19 @@ btn.addEventListener('click', () => {
                 <span class="sign-title">OH NON…</span>
                 <span class="sign-icon">💥</span>
             </div>
-            <div class="sign-sub">le chantier s'est emballe tout seul</div>
+            <div class="sign-sub">Avant ton intervention, cette page était bein en constructionn...</div>
         `;
         sign.style.borderColor = '#e74c3c';
         sign.style.boxShadow   = '0 0 35px rgba(231,76,60,0.4)';
+
+        // H1 : passé composé
+        h1.innerHTML = 'On construisait une page ici…<br>Avant&nbsp;!';
+
+        // Sous-texte bouton : révélation orange vif
+        const dangerSub = document.getElementById('danger-sub');
+        dangerSub.textContent = "J'avais bien dit : Probablement !!!!!!!";
+        dangerSub.style.color = 'rgba(255,107,0,0.95)';
+        dangerSub.style.animation = 'none';
     }, 200);
 
     // d) Fissure écran
@@ -231,7 +335,7 @@ btn.addEventListener('click', () => {
     }, 300);
 
     // e) Bouton cassé
-    btnText.textContent = "💀 Ah bravo, t'as tout cassé !";
+    btnText.textContent = "💀 Ah ben bravo, t'as tout cassé !";
     btn.classList.add('broken');
     btn.style.pointerEvents = 'none';
 
@@ -316,13 +420,11 @@ function drawBranch(ctx, x, y, angle, length, depth) {
     ctx.beginPath();
     ctx.moveTo(x, y);
     const steps = 4 + Math.floor(Math.random() * 3);
-    let cx2 = x, cy2 = y;
     for (let i = 1; i <= steps; i++) {
         const t  = i / steps;
         const nx = x + (ex - x) * t + (Math.random() - 0.5) * 18;
         const ny = y + (ey - y) * t + (Math.random() - 0.5) * 18;
         ctx.lineTo(nx, ny);
-        cx2 = nx; cy2 = ny;
     }
     ctx.lineWidth = Math.max(0.4, depth * 0.34);
     ctx.stroke();
